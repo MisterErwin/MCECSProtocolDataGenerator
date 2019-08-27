@@ -1,0 +1,62 @@
+package com.github.steveice10.mc.protocol.data.game.world;
+
+import javax.annotation.Nullable;
+import com.github.steveice10.mc.protocol.data.game.world.block.Blocks;
+
+/**
+ * @author elmexl
+ * Created on 20.07.2019.
+ * Automatically generated from the MCProtocolDataGenerator
+ */
+public enum Material {
+
+    %GENERATION_TARGET%
+    ;
+
+    private final String name;
+    private final int block_id;
+    private final int item_id;
+
+    Material(String name, int block_id, int item_id) {
+        this.name = name;
+        this.block_id = block_id;
+        this.item_id = item_id;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public int getBlockProtocolId() {
+        return block_id;
+    }
+
+    public int getItemProtocolId() {
+        return item_id;
+    }
+
+    @Nullable
+    public com.github.steveice10.mc.protocol.data.game.world.block.Block getBlock() {
+        return null;
+    }
+
+    private final static Material[] VALUES = Material.values();
+    @Nullable
+    public static Material byItemProtocolID(int itemID){
+      for (Material m : VALUES) {
+          if (m.getItemProtocolId() == itemID)
+              return m;
+      }
+      return null;
+    }
+    @Nullable
+    public static Material byBlockProtocolID(int blockID){
+      for (Material m : VALUES) {
+          if (m.getBlockProtocolId() == blockID)
+              return m;
+      }
+      return null;
+    }
+
+}
