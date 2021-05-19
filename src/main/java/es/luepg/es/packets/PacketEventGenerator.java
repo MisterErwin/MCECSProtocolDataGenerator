@@ -1,6 +1,6 @@
 package es.luepg.es.packets;
 
-import com.github.steveice10.mc.protocol.data.game.world.block.generator.Util;
+import es.luepg.es.worlddata.Util;
 import com.google.googlejavaformat.java.FormatterException;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -45,7 +45,7 @@ public class PacketEventGenerator extends AbstractMojo {
     @Parameter(defaultValue = "${project}")
     private org.apache.maven.project.MavenProject project;
 
-    private com.google.googlejavaformat.java.Formatter formatter = new com.google.googlejavaformat.java.Formatter();
+  private final com.google.googlejavaformat.java.Formatter formatter = new com.google.googlejavaformat.java.Formatter();
 
     public static void main(String[] a) throws Exception {
         // ToDO

@@ -1,4 +1,4 @@
-package com.github.steveice10.mc.protocol.data.game.world.block.generator;
+package es.luepg.es.worlddata;
 
 import com.google.googlejavaformat.java.FormatterException;
 import com.google.gson.JsonElement;
@@ -14,10 +14,9 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -29,26 +28,30 @@ import java.util.*;
 
 public class MaterialGenerator extends AbstractMojo {
 
-    @Parameter(property = "gen.targetDirectory", defaultValue = "${project.basedir}/target/generated-sources", required = true)
-    private File sourceDirectory;
+  @Parameter(property = "gen.targetDirectory", defaultValue = "${project.basedir}/target/generated-sources", required = true)
+  private File sourceDirectory;
 
-    @Parameter(property = "gen.report.registries", defaultValue = "${project.basedir}/src/main/resources/reports/registries.json", required = true)
-    private File registriesReportFile;
+  @Parameter(property = "gen.report.registries", defaultValue = "${project.basedir}/src/main/resources/reports/registries.json", required = true)
+  private File registriesReportFile;
 
-    @Parameter(defaultValue = "${project}")
-    private org.apache.maven.project.MavenProject project;
+  @Parameter(defaultValue = "${project}")
+  private org.apache.maven.project.MavenProject project;
 
-    private com.google.googlejavaformat.java.Formatter formatter = new com.google.googlejavaformat.java.Formatter();
+  private String packageName = "es.luepg.mcdata";
+  private String packageNameImpl = "es.luepg.ecs";
 
-    public static void main(String[] a) throws Exception {
-        // ToDO: A non-maven usage?
-    }
 
-    public void execute() throws MojoExecutionException {
-        try {
-            this.doGenerate();
-        } catch (Exception e) {
-            e.printStackTrace();
+  private com.google.googlejavaformat.java.Formatter formatter = new com.google.googlejavaformat.java.Formatter();
+
+  public static void main(String[] a) throws Exception {
+    // ToDO: A non-maven usage?
+  }
+
+  public void execute() throws MojoExecutionException {
+    try {
+      this.doGenerate();
+    } catch (Exception e) {
+      e.printStackTrace();
             throw new MojoExecutionException("Failed to generate", e);
         }
     }
@@ -110,8 +113,8 @@ public class MaterialGenerator extends AbstractMojo {
 
             if (dataEntry.getValue().block_id != -1) {
 
-                enumData.append(" { @Nullable @Override ")
-                        .append("public com.github.steveice10.mc.protocol.data.game.world.block.Block getBlock() {");
+              enumData.append(" { @Nullable @Override ")
+                      .append("public " + packageNameImpl + ".data.game.world.block.Block getBlock() {");
 
                 enumData.append(" return Blocks.")
                 .append(shortName)
@@ -119,38 +122,38 @@ public class MaterialGenerator extends AbstractMojo {
 
                 enumData.append("} }");
             }
-            enumData.append(",").append(System.lineSeparator());
+          enumData.append(",").append(System.lineSeparator());
         }
 
 
+      List<String> matLines = Files.readAllLines(
 
-        List<String> matLines = Files.readAllLines(
-//                Paths.get(
-//                        this.getClass().getResource("/com/github/steveice10/mc/protocol/data/game/world/Material.template").toURI()
-//                )
+              Util.getResource(getClass().getClassLoader(), "es/luepg/worlddata/Material.template")
+              , Charset.defaultCharset());
 
-                Util.getResource(getClass().getClassLoader(), "com/github/steveice10/mc/protocol/data/game/world/Material.template")
-                , Charset.defaultCharset());
+      matLines = matLines.stream().map(x -> x.replace("%BLOCK_PACKAGE_NAME%", packageNameImpl))
+              .collect(Collectors.toList());
+      matLines = matLines.stream().map(x -> x.replace("%PACKAGE_NAME%", packageName)).collect(Collectors.toList());
 
-        boolean replaced = false;
-        StringBuilder matFile = new StringBuilder();
-        for (String l : matLines) {
-            if (replaced) {
-                matFile.append(l);
-            } else if (l.contains("%GENERATION_TARGET%")) {
-                replaced = true;
-                matFile.append(enumData);
-            } else {
+      boolean replaced = false;
+      StringBuilder matFile = new StringBuilder();
+      for (String l : matLines) {
+        if (replaced) {
+          matFile.append(l);
+        } else if (l.contains("%GENERATION_TARGET%")) {
+          replaced = true;
+          matFile.append(enumData);
+        } else {
                 matFile.append(l);
             }
             matFile.append(System.lineSeparator());
 
         }
-        Util.writeFile(new File(sourceDirectory, "com/github/steveice10/mc/protocol/data/game/world/Material.java"),
-                matFile.toString());
+      Util.writeFile(new File(sourceDirectory, packageName.replace('.', '/') + "/data/game/world/Material.java"),
+                     matFile.toString());
 
-        Util.writeFile(new File(sourceDirectory, "com/github/steveice10/mc/protocol/data/game/world/Material.java"),
-                formatter.formatSource(matFile.toString()));
+      Util.writeFile(new File(sourceDirectory, packageName.replace('.', '/') + "/data/game/world/Material.java"),
+                     formatter.formatSource(matFile.toString()));
 
         System.out.println("Generated Material.java");
     }

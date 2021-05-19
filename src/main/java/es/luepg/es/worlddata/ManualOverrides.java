@@ -1,4 +1,4 @@
-package com.github.steveice10.mc.protocol.data.game.world.block.generator;
+package es.luepg.es.worlddata;
 
 import java.util.Collection;
 import java.util.List;
